@@ -1,0 +1,105 @@
+#Erstelle eine Funktion "pattern_count" mit den Paramtern "text" und "pattern"
+#Eingabe "text": Gesamte Text, der durchsucht werden soll. (gesamte DNA Sequenz)
+#Eingabe "pattern": Sequenz, dessen Häufigkeit innerhalb des Textes gezählt werden soll
+#Ausgabe: Häufigkeit der Muster "pattern" innerhalb des Textes "text"
+#Referenz "function": https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/function
+pattern_count <- function(text, pattern) {
+  
+  #Erstelle Zählvariable "count" und weise den Startwert 0 zu.
+  count <- 0
+  
+  #Definiere Variable "pattern_length" mit der Funktion "nchar" der Eingabe "pattern"
+  #Referenz nchar: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/nchar
+  #nchar gibt zu dem Character Vector "pattern" die Länge, bzw. die Anzahl der Character wieder.
+  pattern_length <- nchar(pattern)
+  
+  #For-loop: Wiederhole Schleife für alle Integer "i" mit jeweils i+1.
+  #Allg: for(variable in sequence) expression. Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/Control
+  #Startwert: 0 
+  #Ende: Länge des Textes "nchar(text)" abzüglich der Länge des Pattern "pattern_length"
+  #nchar(text) gibt die Länge des Eingabe "text", Dokumentation siehe oben.
+  for (i in 0:(nchar(text) - pattern_length)) {
+    
+    #Funktion substr Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/substr
+    #Allgemein: substr(text, start, stop). wobei start und stopp integer sind, die die Position angeben.
+    #benutzt um einen Teil des character vectors auszugeben.
+    #hier: Benutzt um zur Stelle i im "text" zu gelangen und funktion auszuführen.
+    #Funktion rep(x). Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/rep
+    #Allgemein rep(text, Anzahl)
+    #repliziert Eingabe "text"
+    #"substr(rep(text)..." könnte man auch durch "substr(text)..." ersetzen. Die Funktion "rep" ist nicht zwingend notwendig.
+    #Funktion if (condition) == expression. Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/Control
+    #Wenn der substring von "text" mit start = "i+1" und stop = i+ "pattern_length" identisch ist mit der Eingabe "pattern"...
+    if (substr(rep(text), i + 1, i + pattern_length) == pattern)
+      #...dann Erhöhe Zählvariable "count" um +1 und überschreibe alten Wert 
+      count <- count + 1
+  }
+  #Ausgabe "count". Häufigkeit bzw. Anzahl des "patterns" im "text"
+  return(count)
+}
+
+
+
+#Erstelle eine Funktion "frequenz_words" mit den Parametern "text" und "k"
+#Eingabe: Parameter "k": Integer für die Länge der k-mere bzw des pattern.
+#Eingabe: Parameter "text": komplette DNA Sequenz, die nach k-meren durchsucht werden soll.
+#Ausgabe: Häufigstes Pattern innerhalb der Sequenz "text" mit Länge "k"
+frequent_words <- function(text, k) {
+  
+  #Erstelle leeren Vector "frequent_patterns" (weise eine leere Menge zu)
+  frequent_patterns <- {}
+  
+  #Erstelle leeren Vector "count".
+  count <- {}
+  
+  #for-loop, nchar Dokumentationen siehe oben. 
+  #Für alle integer i von start = 0 bis stop = "nchar(text)-k", also Länge des Textes minus integer "k" führe folgende Funktion aus..
+  for (i in 0:(nchar(text) - k)) {
+    #schreibe den substring des textes von start = i+1 bis stop = i+k, also das pattern an der aktuellen Position i des loops mit Länge k,
+    #in einen neuen vector "pattern"
+    pattern <- substr(text, i + 1, i + k)
+    #Führe die vorher definiert Funktion "pattern_count" mit den Parametern "text" und "pattern" aus
+    #Ausgabe: Häufigkeit der "pattern"
+    #Schreibe das Ergebnis der Funktion "pattern_count" die die Zählvariable "count" an der Stelle des vectors [i+1]
+    count[i + 1] <- pattern_count(text, pattern)
+    #Ausgabe: vector mit zwei Datensätzen: 1) Position von 0 bis Länge des "text" minus "k"
+    #2) zugehörig dazu die Häufigkeit des an der Stelle vorkommenden pattern
+  }
+  
+  #Funktion max Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/Extremes
+  #max gibt das maxima des Input "count" wieder. Also alle Pattern, die der höhsten variable "count" zugeordnet sind
+  #weise max(count) auf vector max_count zu.
+  #Kann ausgelassen werden, wenn später anstelle "max_count" "max(count)" verwendet wird.
+  max_count <- max(count)
+  #for-loop, nchar Dokumentation siehe oben.
+  #für alle integer i von start = 0 bis stop = Länge von "text" minus "k", also "nchar(text)-k" führe folgende Funktion aus...
+  for (i in 0:(nchar(text) - k)) {
+    #Wenn Die Zahlvariable "count" an Stelle [i+1] ein maxima aufweist, also identisch mit vector "max_count" ist, dann...
+    if (count[i + 1] == max_count)
+      #Funktion append: Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/append
+      #append fügt Elemente zu einem bestehenden vector hinzu
+      #allg: append(vector, neue werte)
+      #hier: füge dem vector "frequenz_patterns" die pattern hinzu
+      #pattern sind hierbei definiert als: substrings der Eingabe "text" von position start = i+i und stop = i+k
+      #Diese werden zum vector "frequent_patterns" zusammengefasst.
+      frequent_patterns <- append(frequent_patterns, substr(text, i + 1, i + k))
+  }
+  #Funktion unique: Referenz: https://www.rdocumentation.org/packages/base/versions/3.6.0/topics/unique
+  #unique entfernt alle Duplikate aus dem vector "frequent_patterns", sodass wir jedes pattern nur noch einmal vorfinden
+  #Ausgabe: die bereinigten, häufigsten pattern "frequent_patterns"
+  return(unique(frequent_patterns))
+}
+#Erster Datensatz
+frequent_words("ACGTTGCATGTCGCATGATGCATGAGAGCT", 4)
+
+#Zweiter Datansatz
+frequent_words
+
+("CGGAAGCGAGATTCGCGTGGCGTGATTCCGGCGGGCGTGGAGAAGCGAGATTCATTCAAGCCGGGAGGCGTGGCGTGGCGTGGCGTGCGGATTCAAGCCGGCGGGCGTGATTCGAGCGGCG
+
+GATTCGAGATTCCGGGCGTGCGGGGTGAAGCGCGTGGAGGAGGCGTGGCGTGCGGGAGGAGAAGCGAGAAGCCGGATTCAAGCAAGCATTCCGGCGGGAGATTCGCGTGGAGGCGTGGAGG
+
+CGTGGAGGCGTGCGGCGGGAGATTCAAGCCGGATTCGCGTGGAGAAGCGAGAAGCGCGTGCGGAAGCGAGGAGGAGAAGCATTCGCGTGATTCCGGGAGATTCAAGCATTCGCGTGCGGCGG
+
+GAGATTCAAGCGAGGAGGCGTGAAGCAAGCAAGCAAGCGCGTGGCGTGCGGCGGGAGAAGCAAGCGCGTGATTCGAGCGGGCGTGCGGAAGCGAGCGG
+",12)
